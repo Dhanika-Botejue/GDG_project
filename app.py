@@ -47,13 +47,13 @@ def add():
 
     return render_template("add.html")
 
-@app.route("/complete/<int:task_id>")
+@app.route('/complete/<int:task_id>', methods=['POST'])
 def complete(task_id):
     data = load_data()
-    if 0 <= task_id < len(data["tasks"]):
-        data["tasks"][task_id]["completed"] = True
+    if 0 <= task_id < len(data['tasks']):
+        data['tasks'][task_id]['completed'] = True
         save_data(data)
-    return redirect(url_for("tasks"))
+    return redirect('/tasks')
 
 @app.route("/reminders")
 def reminders():

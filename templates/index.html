@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Study Planner</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 40px;
       background-color: #f0f4f8;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
     }
     h1 {
       color: #333;
@@ -19,14 +25,17 @@
       color: white;
       text-decoration: none;
       border-radius: 5px;
-      margin-top: 10px;
+      margin: 10px 5px 0 5px;
     }
   </style>
 </head>
 <body>
-  <h1>Personalized Study Planner</h1>
-  <p>Track your study goals, set reminders, and stay on top of your exams!</p>
-  <a href="/tasks" class="btn">View My Tasks</a>
-  <a href="/add" class="btn">Add New Task</a>
+  <div class="container">
+    <h1>Personalized Study Planner</h1>
+    <p>Track your study goals, set reminders, and stay on top of your exams!</p>
+    <a href="/tasks" class="btn">View My Tasks</a>
+    <a href="/add" class="btn">Add New Task</a>
+    <a href="/reminders" class="btn">Today's Reminders</a>
+  </div>
 </body>
 </html>

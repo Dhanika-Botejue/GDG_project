@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Tasks</title>
+</head>
+<body>
+  <h1>Your Study Tasks</h1>
+  <ul>
+    {% for idx, task in enumerate(tasks) %}
+      <li>
+        {% if task.completed %}
+          ✅ <s>{{ task.subject }} - {{ task.task }} (Due: {{ task.due_date }})</s>
+        {% else %}
+          ❌ {{ task.subject }} - {{ task.task }} (Due: {{ task.due_date }})
+          <form action="/complete/{{ idx }}" method="POST" style="display:inline;">
+            <button type="submit">Mark as Done</button>
+          </form>
+        {% endif %}
+      </li>
+    {% else %}
+      <p>No tasks yet. Add one <a href="/add">here</a>.</p>
+    {% endfor %}
+  </ul>
+  <br>
+  <a href="/">⬅ Back to Home</a>
+</body>
+</html>

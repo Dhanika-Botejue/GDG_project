@@ -1,1 +1,1 @@
-# GDG_project
+this is our readme file thing, just testing for now

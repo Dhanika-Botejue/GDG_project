@@ -36,6 +36,13 @@
     <a href="/tasks" class="btn">View My Tasks</a>
     <a href="/add" class="btn">Add New Task</a>
     <a href="/reminders" class="btn">Today's Reminders</a>
+    <form method="POST" action="/ai">
+      <label>Upload Screenshot (File Path):<br>
+        <input type="text" name="filepath" placeholder="/Users/you/Desktop/screenshot.png" required>
+      </label>
+      <br><br>
+      <button type="submit">Extract Tasks from Screenshot</button>
+    </form>
   </div>
 </body>
 </html>

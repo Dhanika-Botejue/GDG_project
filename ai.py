@@ -1,18 +1,20 @@
 from datetime import date
 import google.generativeai as genai
 import PIL.Image
+import json
 
 # Authenticate
 genai.configure(api_key="AIzaSyDVoG8-gIUOydy8gUUwNBKxSVmSO9-_jms")
 
-# Load image using PIL
-image = PIL.Image.open(input("File path: "))  # replace with your image path
+def extract_tasks_from_image(image_path):
+    # Load image using PIL
+    image = PIL.Image.open(image_path)
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
-today = date.today().isoformat()
+    today = date.today().isoformat()
 
-prompt = f"""From the content I'm giving you (a screenshot or PDF), extract study tasks and return them in this exact JSON format:
+    prompt = f"""From the content I'm giving you (a screenshot), extract study tasks and return them in this exact JSON format:
 
 [
   {{
@@ -31,7 +33,17 @@ Make sure:
 
 Here is the content:"""
 
-response = model.generate_content([prompt, image])
+    response = model.generate_content([prompt, image])
 
-# Print the response
-print(response.text)
+    raw_text = response.text.strip()
+
+    # 🔧 Remove ```json ... ``` markdown if present
+    if raw_text.startswith("```") and raw_text.endswith("```"):
+        raw_text = "\n".join(raw_text.split("\n")[1:-1])  # removes first and last lines
+
+
+    try:
+        return json.loads(raw_text)
+    except Exception as e:
+        print("Failed to parse JSON:", e)
+        return []

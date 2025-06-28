@@ -1,6 +1,7 @@
+from ai import extract_tasks_from_image
+import datetime
 from flask import Flask, render_template, request, redirect, url_for
 import json
-import datetime
 
 app = Flask(__name__)
 
@@ -61,6 +62,27 @@ def reminders():
     today = datetime.date.today().isoformat()
     today_tasks = [t for t in data["tasks"] if t["reminder"] and not t["completed"] and t["due_date"] == today]
     return render_template("reminders.html", reminders=today_tasks)
+
+@app.route("/ai", methods=["POST"])
+def ai_extract():
+    filepath = request.form.get("filepath")
+
+    if not filepath:
+        print("No filepath provided")
+        return redirect("/")
+
+    tasks = extract_tasks_from_image(filepath)
+
+    if tasks:
+        data = load_data()
+        data["tasks"].extend(tasks)
+        save_data(data)
+    else:
+        print("No tasks extracted by AI")
+
+    return redirect("/tasks")
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

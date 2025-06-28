@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reminders</title>
+</head>
+<body>
+  <h1>Today's Reminders</h1>
+  <ul>
+    {% for task in reminders %}
+      <li>{{ task.subject }} - {{ task.task }} (Due today!)</li>
+    {% else %}
+      <p>No reminders for today!</p>
+    {% endfor %}
+  </ul>
+  <br>
+  <a href="/">⬅ Back to Home</a>
+</body>
+</html>

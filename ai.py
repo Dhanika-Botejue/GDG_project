@@ -21,13 +21,15 @@ def extract_tasks_from_image(image_path):
     "subject": "Subject Name",
     "task": "What needs to be done",
     "due_date": "YYYY-MM-DD",
-    "reminder": true  // true if it's due today, else false
+    "reminder": true,  // true if it's due today, else false
+    "completed": false
   }},
   ...
 ]
 
 Make sure:
 - Use today's date as {today} to determine if `reminder` should be true.
+- Always set "completed" to false.
 - Only include tasks that have a clear due date.
 - Keep task descriptions short but clear.
 

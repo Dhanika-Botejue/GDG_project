@@ -2,3 +2,5 @@ Flask
 Pillow
 google-generativeai
 werkzeug
+pymongo[srv]
+python-dotenv

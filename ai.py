@@ -37,7 +37,7 @@ Here is the content:"""
 
     raw_text = response.text.strip()
 
-    # 🔧 Remove ```json ... ``` markdown if present
+    # Remove ```json ... ``` markdown if present
     if raw_text.startswith("```") and raw_text.endswith("```"):
         raw_text = "\n".join(raw_text.split("\n")[1:-1])  # removes first and last lines
 

@@ -8,7 +8,7 @@ Turn screenshots into smart study plans. Extract tasks, set deadlines, and get r
 - **Backend**: Python 3, Flask
 - **AI Integration**: Google Gemini API (1.5 Flash)
 - **Image Handling**: Pillow (PIL)
-- **Data Storage**: Local JSON (`study_plan.json`)
+- **Data Storage**: MongoDB
 
 ## Installation
 

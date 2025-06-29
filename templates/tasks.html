@@ -2,27 +2,247 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>My Tasks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Tasks - Study Planner</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      font-weight: 300;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .task-list {
+      list-style: none;
+      margin-top: 20px;
+    }
+
+    .task-item {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 4px solid #667eea;
+      transition: all 0.3s ease;
+    }
+
+    .task-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .task-item.completed {
+      border-left-color: #28a745;
+      opacity: 0.7;
+    }
+
+    .task-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .task-info {
+      flex: 1;
+    }
+
+    .task-subject {
+      font-weight: 600;
+      color: #333;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .task-description {
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .task-date {
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .complete-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .complete-btn:hover {
+      background: #218838;
+      transform: translateY(-1px);
+    }
+
+    .status-icon {
+      font-size: 1.2rem;
+      margin-right: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .empty-state p {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+      
+      .header {
+        padding: 20px;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+      
+      .nav-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .task-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .task-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Your Study Tasks</h1>
-  <ul>
-    {% for task in tasks %}
-      <li>
-        {% if task.completed %}
-          ✅ <s>{{ task.subject }} - {{ task.task }} (Due: {{ task.due_date }})</s>
-        {% else %}
-          ❌ {{ task.subject }} - {{ task.task }} (Due: {{ task.due_date }})
-          <form action="/complete/{{ loop.index0 }}" method="POST" style="display:inline;">
-            <button type="submit">Mark as Done</button>
-          </form>
-        {% endif %}
-      </li>
-    {% else %}
-      <p>No tasks yet. Add one <a href="/add">here</a>.</p>
-    {% endfor %}
-  </ul>
-  <br />
-  <a href="/">⬅ Back to Home</a>
+  <div class="container">
+    <div class="header">
+      <h1>📋 Your Study Tasks</h1>
+    </div>
+    
+    <div class="content">
+      <div class="nav-buttons">
+        <a href="/" class="btn">🏠 Home</a>
+        <a href="/add" class="btn">➕ Add Task</a>
+        <a href="/reminders" class="btn">⏰ Reminders</a>
+      </div>
+
+      {% if tasks %}
+        <ul class="task-list">
+          {% for task in tasks %}
+            <li class="task-item {% if task.completed %}completed{% endif %}">
+              <div class="task-content">
+                <div class="task-info">
+                  <div class="task-subject">{{ task.subject }}</div>
+                  <div class="task-description">{{ task.task }}</div>
+                  <div class="task-date">📅 Due: {{ task.due_date }}</div>
+                </div>
+                <div class="task-actions">
+                  {% if task.completed %}
+                    <span class="status-icon">✅</span>
+                    <span style="color: #28a745; font-weight: 500;">Completed</span>
+                  {% else %}
+                    <form action="/complete/{{ loop.index0 }}" method="POST" style="display:inline;">
+                      <button type="submit" class="complete-btn">✅ Mark Complete</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          <p>🎯 No tasks yet!</p>
+          <p>Start by adding your first study task or use our AI to extract tasks from a screenshot.</p>
+          <div style="margin-top: 20px;">
+            <a href="/add" class="btn">➕ Add Your First Task</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </body>
 </html>

@@ -2,10 +2,23 @@ from ai import extract_tasks_from_image
 import datetime
 from flask import Flask, render_template, request, redirect, url_for
 import json
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 DATA_FILE = "study_plan.json"
+UPLOAD_FOLDER = "uploads"
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
+
+# Create uploads directory if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def load_data():
     try:
@@ -65,24 +78,47 @@ def reminders():
 
 @app.route("/ai", methods=["POST"])
 def ai_extract():
-    filepath = request.form.get("filepath")
-
-    if not filepath:
-        print("No filepath provided")
+    # Check if a file was uploaded
+    if 'image' not in request.files:
+        print("No file part")
         return redirect("/")
-
-    tasks = extract_tasks_from_image(filepath)
-
-    if tasks:
-        data = load_data()
-        data["tasks"].extend(tasks)
-        save_data(data)
-    else:
-        print("No tasks extracted by AI")
-
-    return redirect("/tasks")
-
-
+    
+    file = request.files['image']
+    
+    # If user doesn't select file, browser also submits an empty part without filename
+    if file.filename == '' or file.filename is None:
+        print("No selected file")
+        return redirect("/")
+    
+    if file and allowed_file(file.filename):
+        # Secure the filename and save the file
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        print(f"File saved to: {filepath}")
+        
+        # Extract tasks using the AI
+        tasks = extract_tasks_from_image(filepath)
+        
+        if tasks:
+            data = load_data()
+            data["tasks"].extend(tasks)
+            save_data(data)
+            print(f"Added {len(tasks)} tasks from AI extraction")
+        else:
+            print("No tasks extracted by AI")
+        
+        # Clean up the uploaded file
+        try:
+            os.remove(filepath)
+        except OSError:
+            pass  # File might already be deleted
+        
+        return redirect("/tasks")
+    
+    print("Invalid file type")
+    return redirect("/")
 
 if __name__ == "__main__":
     app.run(debug=True)

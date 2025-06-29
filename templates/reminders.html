@@ -2,18 +2,213 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Reminders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reminders - Study Planner</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      font-weight: 300;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .reminder-list {
+      list-style: none;
+      margin-top: 20px;
+    }
+
+    .reminder-item {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 4px solid #f39c12;
+      transition: all 0.3s ease;
+    }
+
+    .reminder-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(243, 156, 18, 0.2);
+    }
+
+    .reminder-content {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .reminder-icon {
+      font-size: 2rem;
+      color: #f39c12;
+    }
+
+    .reminder-info {
+      flex: 1;
+    }
+
+    .reminder-subject {
+      font-weight: 600;
+      color: #333;
+      font-size: 1.1rem;
+      margin-bottom: 5px;
+    }
+
+    .reminder-description {
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .reminder-date {
+      color: #f39c12;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+      
+      .header {
+        padding: 20px;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+      
+      .nav-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .reminder-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Today's Reminders</h1>
-  <ul>
-    {% for task in reminders %}
-      <li>{{ task.subject }} - {{ task.task }} (Due today!)</li>
-    {% else %}
-      <p>No reminders for today!</p>
-    {% endfor %}
-  </ul>
-  <br>
-  <a href="/">⬅ Back to Home</a>
+  <div class="container">
+    <div class="header">
+      <h1>⏰ Today's Reminders</h1>
+    </div>
+    
+    <div class="content">
+      <div class="nav-buttons">
+        <a href="/" class="btn">🏠 Home</a>
+        <a href="/tasks" class="btn">📋 View Tasks</a>
+        <a href="/add" class="btn">➕ Add Task</a>
+      </div>
+
+      {% if reminders %}
+        <ul class="reminder-list">
+          {% for task in reminders %}
+            <li class="reminder-item">
+              <div class="reminder-content">
+                <div class="reminder-icon">⏰</div>
+                <div class="reminder-info">
+                  <div class="reminder-subject">{{ task.subject }}</div>
+                  <div class="reminder-description">{{ task.task }}</div>
+                  <div class="reminder-date">📅 Due today!</div>
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-state-icon">🎉</div>
+          <p>No reminders for today!</p>
+          <p>You're all caught up with your tasks.</p>
+          <div style="margin-top: 20px;">
+            <a href="/add" class="btn">➕ Add New Task</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </body>
 </html>

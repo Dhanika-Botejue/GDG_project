@@ -3,46 +3,450 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Study Planner</title>
+  <title>Study Planner - AI Assistant</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 40px;
-      background-color: #f0f4f8;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
     .container {
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
       text-align: center;
     }
-    h1 {
-      color: #333;
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      font-weight: 300;
     }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
     .btn {
       display: inline-block;
-      padding: 10px 15px;
-      background-color: #007BFF;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       text-decoration: none;
-      border-radius: 5px;
-      margin: 10px 5px 0 5px;
+      border-radius: 25px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .ai-section {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 30px;
+      margin-top: 30px;
+      border: 2px dashed #dee2e6;
+    }
+
+    .ai-section h2 {
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .dropzone {
+      border: 3px dashed #667eea;
+      border-radius: 15px;
+      padding: 60px 20px;
+      text-align: center;
+      background: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .dropzone.dragover {
+      border-color: #764ba2;
+      background: #f0f4ff;
+      transform: scale(1.02);
+    }
+
+    .dropzone-icon {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+
+    .dropzone-text {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .dropzone-subtext {
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+    .file-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .upload-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .upload-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #e9ecef;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .status-message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status-loading {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .file-info {
+      margin-top: 15px;
+      padding: 15px;
+      background: #e9ecef;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .file-info img {
+      max-width: 100px;
+      max-height: 100px;
+      border-radius: 8px;
+      margin-right: 15px;
+      float: left;
+    }
+
+    .file-details {
+      overflow: hidden;
+    }
+
+    .file-name {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .file-size {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+      
+      .header {
+        padding: 30px 20px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .content {
+        padding: 30px 20px;
+      }
+      
+      .nav-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Personalized Study Planner</h1>
-    <p>Track your study goals, set reminders, and stay on top of your exams!</p>
-    <a href="/tasks" class="btn">View My Tasks</a>
-    <a href="/add" class="btn">Add New Task</a>
-    <a href="/reminders" class="btn">Today's Reminders</a>
-    <form method="POST" action="/ai">
-      <label>Upload Screenshot (File Path):<br>
-        <input type="text" name="filepath" placeholder="/Users/you/Desktop/screenshot.png" required>
-      </label>
-      <br><br>
-      <button type="submit">Extract Tasks from Screenshot</button>
-    </form>
+    <div class="header">
+      <h1>📚 Study Planner</h1>
+      <p>AI-Powered Task Management for Students</p>
+    </div>
+    
+    <div class="content">
+      <div class="nav-buttons">
+        <a href="/tasks" class="btn">📋 View Tasks</a>
+        <a href="/add" class="btn">➕ Add Task</a>
+        <a href="/reminders" class="btn">⏰ Reminders</a>
+      </div>
+
+      <div class="ai-section">
+        <h2>🤖 AI Task Extractor</h2>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+          Upload a screenshot of your study schedule or task list, and our AI will automatically extract and add tasks to your planner!
+        </p>
+        
+        <form id="aiForm" method="POST" action="/ai" enctype="multipart/form-data">
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="fileInput" class="file-input" accept="image/*" name="image">
+            <div class="dropzone-icon">📷</div>
+            <div class="dropzone-text">Drag & drop your image here</div>
+            <div class="dropzone-subtext">or click to browse files</div>
+          </div>
+          
+          <button type="submit" class="upload-btn" id="uploadBtn" disabled>
+            🚀 Extract Tasks with AI
+          </button>
+          
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          
+          <div class="status-message" id="statusMessage"></div>
+          
+          <div class="file-info" id="fileInfo">
+            <img id="filePreview" src="" alt="Preview">
+            <div class="file-details">
+              <div class="file-name" id="fileName"></div>
+              <div class="file-size" id="fileSize"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const statusMessage = document.getElementById('statusMessage');
+    const fileInfo = document.getElementById('fileInfo');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const aiForm = document.getElementById('aiForm');
+
+    // Drag and drop functionality
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    dropzone.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showStatus('Please select an image file.', 'error');
+        return;
+      }
+
+      // Show file info
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        filePreview.src = e.target.result;
+        fileInfo.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+
+      // Enable upload button
+      uploadBtn.disabled = false;
+      showStatus('File selected! Click "Extract Tasks with AI" to process.', 'success');
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function showStatus(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = `status-message status-${type}`;
+      statusMessage.style.display = 'block';
+    }
+
+    function hideStatus() {
+      statusMessage.style.display = 'none';
+    }
+
+    // Form submission
+    aiForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(aiForm);
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        showStatus('Please select a file first.', 'error');
+        return;
+      }
+
+      // Show loading state
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = '🔄 Processing...';
+      progressBar.style.display = 'block';
+      showStatus('Uploading and processing your image with AI...', 'loading');
+
+      // Simulate progress
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressFill.style.width = progress + '%';
+      }, 200);
+
+      try {
+        const response = await fetch('/ai', {
+          method: 'POST',
+          body: formData
+        });
+
+        clearInterval(progressInterval);
+        progressFill.style.width = '100%';
+
+        if (response.ok) {
+          showStatus('✅ Tasks extracted successfully! Redirecting to tasks page...', 'success');
+          setTimeout(() => {
+            window.location.href = '/tasks';
+          }, 2000);
+        } else {
+          throw new Error('Upload failed');
+        }
+      } catch (error) {
+        clearInterval(progressInterval);
+        progressBar.style.display = 'none';
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = '🚀 Extract Tasks with AI';
+        showStatus('❌ Error processing image. Please try again.', 'error');
+      }
+    });
+  </script>
 </body>
 </html>

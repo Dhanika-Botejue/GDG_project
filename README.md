@@ -1,3 +1,2 @@
-this is our readme file thing, just testing for now
+# NoteVision
 
-also it's 2025 just learn python already!

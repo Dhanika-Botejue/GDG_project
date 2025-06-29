@@ -4,10 +4,27 @@ from flask import Flask, render_template, request, redirect, url_for
 import json
 import os
 from werkzeug.utils import secure_filename
+import pymongo
+from bson.objectid import ObjectId
+from dotenv import load_dotenv
+
+load_dotenv() # Load variables from .env file
 
 app = Flask(__name__)
 
-DATA_FILE = "study_plan.json"
+# --- MongoDB Configuration ---
+MONGO_USERNAME = os.getenv("MONGO_USERNAME")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+MONGO_CLUSTER_URL = os.getenv("MONGO_CLUSTER_URL")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "study_planner")
+
+# Construct the MongoDB URI from environment variables
+MONGO_URI = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_CLUSTER_URL}/{MONGO_DB_NAME}?retryWrites=true&w=majority&appName=Cluster0"
+
+client = pymongo.MongoClient(MONGO_URI)
+db = client[MONGO_DB_NAME]
+tasks_collection = db.tasks
+
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
 
@@ -20,25 +37,14 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def load_data():
-    try:
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {"tasks": []}
-
-def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
-
 @app.route("/")
 def home():
     return render_template("index.html")
 
 @app.route("/tasks")
 def tasks():
-    data = load_data()
-    return render_template("tasks.html", tasks=data["tasks"])
+    all_tasks = list(tasks_collection.find().sort("due_date", pymongo.ASCENDING))
+    return render_template("tasks.html", tasks=all_tasks)
 
 @app.route("/add", methods=["GET", "POST"])
 def add():
@@ -48,32 +54,34 @@ def add():
         due_date = request.form["due_date"]
         reminder = request.form.get("reminder") == "on"
 
-        data = load_data()
-        data["tasks"].append({
+        new_task = {
             "subject": subject,
             "task": task,
             "due_date": due_date,
             "reminder": reminder,
             "completed": False
-        })
-        save_data(data)
+        }
+        tasks_collection.insert_one(new_task)
         return redirect(url_for("tasks"))
 
     return render_template("add.html")
 
-@app.route('/complete/<int:task_id>', methods=['POST'])
+@app.route('/complete/<string:task_id>', methods=['POST'])
 def complete(task_id):
-    data = load_data()
-    if 0 <= task_id < len(data['tasks']):
-        data['tasks'][task_id]['completed'] = True
-        save_data(data)
+    try:
+        tasks_collection.update_one(
+            {"_id": ObjectId(task_id)},
+            {"$set": {"completed": True}}
+        )
+    except Exception as e:
+        print(f"Error completing task: {e}")
     return redirect('/tasks')
 
 @app.route("/reminders")
 def reminders():
-    data = load_data()
     today = datetime.date.today().isoformat()
-    today_tasks = [t for t in data["tasks"] if t["reminder"] and not t["completed"] and t["due_date"] == today]
+    query = {"reminder": True, "completed": False, "due_date": today}
+    today_tasks = list(tasks_collection.find(query))
     return render_template("reminders.html", reminders=today_tasks)
 
 @app.route("/ai", methods=["POST"])
@@ -102,9 +110,10 @@ def ai_extract():
         tasks = extract_tasks_from_image(filepath)
         
         if tasks:
-            data = load_data()
-            data["tasks"].extend(tasks)
-            save_data(data)
+            # Ensure all tasks from AI have the 'completed' field
+            for task in tasks:
+                task['completed'] = False
+            tasks_collection.insert_many(tasks)
             print(f"Added {len(tasks)} tasks from AI extraction")
         else:
             print("No tasks extracted by AI")

@@ -224,7 +224,7 @@
                     <span class="status-icon">✅</span>
                     <span style="color: #28a745; font-weight: 500;">Completed</span>
                   {% else %}
-                    <form action="/complete/{{ loop.index0 }}" method="POST" style="display:inline;">
+                    <form action="/complete/{{ task._id }}" method="POST" style="display:inline;">
                       <button type="submit" class="complete-btn">✅ Mark Complete</button>
                     </form>
                   {% endif %}
